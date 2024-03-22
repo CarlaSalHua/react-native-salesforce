@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-
+apply plugin: 'com.google.gms.google-services'
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -74,13 +74,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.reactnativesalesforce"
+    namespace "com.realplazago.app"
     defaultConfig {
-        applicationId "com.reactnativesalesforce"
+        applicationId "com.realplazago.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
     }
     signingConfigs {
         debug {
@@ -110,7 +110,10 @@ dependencies {
     implementation("com.facebook.react:flipper-integration")
     implementation("com.salesforce.marketingcloud:marketingcloudsdk:$marketingcloudsdk_version")
     implementation 'com.google.android.gms:play-services-location:21.1.0'
+    implementation platform('com.google.firebase:firebase-bom:32.7.4')
+    implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging:20.1.2'
+    implementation project(':react-native-push-notification')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

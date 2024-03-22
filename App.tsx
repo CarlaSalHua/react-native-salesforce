@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -19,36 +19,16 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-
+import firestore from '@react-native-firebase/firestore';
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import {PermissionsAndroid} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import usePushNotification from './usePushNotification';
+import PushNotification, {Importance} from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -62,8 +42,51 @@ function App(): React.JSX.Element {
   };
 
   const setProfileId = () => {
-    NativeModules.SalesforceModule.setProfileId('147852369');
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
+
+    NativeModules.SalesforceModule.setProfileId('74321574');
   };
+
+  const isEnabledGeo = () => {
+    console.log(
+      'isEnabledGeo',
+      NativeModules.SalesforceModule.getStatusGeofence(),
+    );
+  };
+
+  const obtenerFirestore = () => {
+    PushNotification.getChannels(function (channel_ids) {
+      console.log(channel_ids); // ['channel_id_1']
+    });
+  };
+
+  const {
+    requestUserPermission,
+    getFCMToken,
+    listenToBackgroundNotifications,
+    listenToForegroundNotifications,
+    onNotificationOpenedAppFromBackground,
+    onNotificationOpenedAppFromQuit,
+  } = usePushNotification();
+
+  useEffect(() => {
+    const listenToNotifications = () => {
+      try {
+        getFCMToken();
+        requestUserPermission();
+        onNotificationOpenedAppFromQuit();
+        listenToBackgroundNotifications();
+        listenToForegroundNotifications();
+        onNotificationOpenedAppFromBackground();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    listenToNotifications();
+  }, []);
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -104,6 +127,38 @@ function App(): React.JSX.Element {
             marginTop: 20,
           }}>
           <Text style={{color: 'black'}}>Guardar profile id</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={obtenerFirestore}
+          style={{
+            backgroundColor: '#dedede',
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+            marginHorizontal: 10,
+            borderRadius: 10,
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          <Text style={{color: 'black'}}>Obtener canales push</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={isEnabledGeo}
+          style={{
+            backgroundColor: '#dedede',
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+            marginHorizontal: 10,
+            borderRadius: 10,
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          <Text style={{color: 'black'}}>¿Está activado la geo?</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

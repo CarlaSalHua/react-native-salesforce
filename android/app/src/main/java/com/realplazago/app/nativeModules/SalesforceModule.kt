@@ -1,9 +1,8 @@
-package com.reactnativesalesforce.nativeModules
+package com.realplazago.app.nativeModules
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -14,7 +13,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.salesforce.marketingcloud.MarketingCloudSdk
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk
-import java.net.IDN
 
 class SalesforceModule (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     override fun getName(): String = "SalesforceModule"
@@ -64,6 +62,11 @@ class SalesforceModule (reactContext: ReactApplicationContext) : ReactContextBas
     @ReactMethod(isBlockingSynchronousMethod = true)
     fun disabledGeofence() {
         toggleGeofenceMessaging(marketingCloudSdk, false)
+    }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun getStatusGeofence() : Boolean{
+        return marketingCloudSdk.regionMessageManager.isGeofenceMessagingEnabled()
     }
 
     private fun hasRequiredPermissions(): Boolean {

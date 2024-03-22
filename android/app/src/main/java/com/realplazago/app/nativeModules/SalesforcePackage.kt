@@ -1,4 +1,4 @@
-package com.reactnativesalesforce.nativeModules
+package com.realplazago.app.nativeModules
 
 import android.view.View
 import com.facebook.react.ReactPackage

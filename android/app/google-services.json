@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "678097619965",
+    "firebase_url": "https://app-rpgo-uat-66e8e.firebaseio.com",
+    "project_id": "app-rpgo-uat-66e8e",
+    "storage_bucket": "app-rpgo-uat-66e8e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:678097619965:android:4170ef985ac27f091c2794",
+        "android_client_info": {
+          "package_name": "com.realplazago.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "678097619965-19nrtcgsm83d05m5poi4pbbmln7tfm2e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.realplazago.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "678097619965-a1g96j1rf371u37350hq6auh1j4dj6b8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG9rozWmnt1-JyjC43RdZ2ajvhRWHLg8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "678097619965-a1g96j1rf371u37350hq6auh1j4dj6b8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "678097619965-2ck759h55c02guinbsa36pnd40f9es6l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.realplaza.go"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

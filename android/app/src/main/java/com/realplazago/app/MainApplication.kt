@@ -1,6 +1,12 @@
-package com.reactnativesalesforce
+package com.realplazago.app
 
+import android.R
 import android.app.Application
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -11,15 +17,21 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.flipper.ReactNativeFlipper
 import com.facebook.soloader.SoLoader
-import com.reactnativesalesforce.nativeModules.SalesforcePackage
+import com.google.android.gms.tasks.Task
+import com.google.firebase.messaging.FirebaseMessaging
+import com.realplazago.app.nativeModules.SalesforcePackage
 import com.salesforce.marketingcloud.MCLogListener
 import com.salesforce.marketingcloud.MarketingCloudConfig
 import com.salesforce.marketingcloud.MarketingCloudSdk
 import com.salesforce.marketingcloud.notifications.NotificationCustomizationOptions
+import com.salesforce.marketingcloud.notifications.NotificationMessage
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdkModuleConfig
 import com.salesforce.marketingcloud.sfmcsdk.components.logging.LogLevel
 import com.salesforce.marketingcloud.sfmcsdk.components.logging.LogListener
+import com.salesforce.marketingcloud.sfmcsdk.modules.push.PushModuleInterface
+import java.util.Random
+
 
 class MainApplication : Application(), ReactApplication
 {
@@ -64,13 +76,52 @@ class MainApplication : Application(), ReactApplication
             setSenderId("678097619965")
             setMarketingCloudServerUrl("https://mcb254c7pm7hg1bp-7bzx93p91ty.device.marketingcloudapis.com/")
             setNotificationCustomizationOptions(
-                    NotificationCustomizationOptions.create(R.drawable.ic_notification_icon)
+                    NotificationCustomizationOptions.create(R.drawable.ic_notification_clear_all, { context: Context?, (_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, payload): NotificationMessage ->
+                        val r = Random()
+                        val requestCode: Int = r.nextInt()
+                        val url = payload!!["deep_link"]
+                        if (url == null || url.isEmpty()) {
+                            return@create PendingIntent.getActivity(
+                                    context,
+                                    requestCode,
+                                    Intent(context, MainActivity::class.java),
+                                    PendingIntent.FLAG_UPDATE_CURRENT or
+                                            PendingIntent.FLAG_IMMUTABLE)
+                        } else return@create PendingIntent.getActivity(
+                                context,
+                                requestCode,
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url)),
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                    }, null)
             )
+            setAnalyticsEnabled(true)
+            setGeofencingEnabled(true)
+            setPiAnalyticsEnabled(true)
+            setUseLegacyPiIdentifier(false)
             // Other configuration options
         }.build(applicationContext)
     }) { initStatus ->
         // TODO handle initialization status
     }
+
+      SFMCSdk.requestSdk { sdk ->
+          sdk.mp {
+              it.pushMessageManager.pushToken?.let {
+                  token -> Log.d("TOKEN", token)
+              }
+          }
+      }
+
+//      try {
+//          FirebaseMessaging.getInstance().getToken().addOnCompleteListener { task: Task<String?> ->
+//              if (task.isSuccessful) {
+//                  SFMCSdk.requestSdk { sfmcSdk: SFMCSdk -> sfmcSdk.mp { pushModuleInterface: PushModuleInterface -> pushModuleInterface.pushMessageManager.setPushToken(task.result!!) } }
+//              }
+//          }
+//      } catch (ex: Exception) {
+//          Log.e("FirebaseMessaging", "Failed to retrieve InstanceId from Firebase. " + ex.message)
+//      }
 
 
     ReactNativeFlipper.initializeFlipper(this, reactNativeHost.reactInstanceManager)
