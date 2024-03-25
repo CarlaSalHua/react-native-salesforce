@@ -69,6 +69,18 @@ class SalesforceModule (reactContext: ReactApplicationContext) : ReactContextBas
         return marketingCloudSdk.regionMessageManager.isGeofenceMessagingEnabled()
     }
 
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun getContactKey(): String? {
+        return marketingCloudSdk.moduleIdentity.profileId
+    }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun getSDKState(): String{
+
+        return     SFMCSdkCloud.getSdkState().getJSONObject("PUSH").toString()
+    }
+
+
     private fun hasRequiredPermissions(): Boolean {
         return REQUIRED_PERMISSIONS
                 .map { ContextCompat.checkSelfPermission(reactApplicationContext, it) }

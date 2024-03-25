@@ -17,8 +17,6 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.flipper.ReactNativeFlipper
 import com.facebook.soloader.SoLoader
-import com.google.android.gms.tasks.Task
-import com.google.firebase.messaging.FirebaseMessaging
 import com.realplazago.app.nativeModules.SalesforcePackage
 import com.salesforce.marketingcloud.MCLogListener
 import com.salesforce.marketingcloud.MarketingCloudConfig
@@ -29,7 +27,7 @@ import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdkModuleConfig
 import com.salesforce.marketingcloud.sfmcsdk.components.logging.LogLevel
 import com.salesforce.marketingcloud.sfmcsdk.components.logging.LogListener
-import com.salesforce.marketingcloud.sfmcsdk.modules.push.PushModuleInterface
+import org.json.JSONException
 import java.util.Random
 
 
@@ -102,11 +100,13 @@ class MainApplication : Application(), ReactApplication
             // Other configuration options
         }.build(applicationContext)
     }) { initStatus ->
+
         // TODO handle initialization status
     }
 
       SFMCSdk.requestSdk { sdk ->
           sdk.mp {
+              Log.d("sfmcSdk getSdkState", sdk.getSdkState().getJSONObject("PUSH").toString())
               it.pushMessageManager.pushToken?.let {
                   token -> Log.d("TOKEN", token)
               }

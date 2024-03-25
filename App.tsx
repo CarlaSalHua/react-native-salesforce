@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -10,6 +10,7 @@ import {
   View,
   NativeModules,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 
 import {
@@ -25,11 +26,20 @@ type SectionProps = PropsWithChildren<{
 }>;
 
 import {PermissionsAndroid} from 'react-native';
-import messaging from '@react-native-firebase/messaging';
 import usePushNotification from './usePushNotification';
 import PushNotification, {Importance} from 'react-native-push-notification';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
-
+PushNotification.createChannel(
+  {
+    channelId: 'default-1', // (required)
+    channelName: 'Canal por defetco', // (required)
+    channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+    playSound: false, // (optional) default: true
+    soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+    importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+    vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+  },
+  created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+);
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -38,7 +48,7 @@ function App(): React.JSX.Element {
   };
 
   const enableGeo = () => {
-    console.log(NativeModules.SalesforceModule.enableGeofence());
+    NativeModules.SalesforceModule.enableGeofence();
   };
 
   const setProfileId = () => {
@@ -50,16 +60,18 @@ function App(): React.JSX.Element {
   };
 
   const isEnabledGeo = () => {
-    console.log(
-      'isEnabledGeo',
-      NativeModules.SalesforceModule.getStatusGeofence(),
-    );
+    setEnableGeo(NativeModules.SalesforceModule.getStatusGeofence());
   };
 
   const obtenerFirestore = () => {
     PushNotification.getChannels(function (channel_ids) {
-      console.log(channel_ids); // ['channel_id_1']
+      console.log('channel_ids', channel_ids);
+      setChannels(channel_ids);
     });
+  };
+
+  const obtenerSDK = () => {
+    console.log(NativeModules.SalesforceModule.getSDKState());
   };
 
   const {
@@ -72,6 +84,7 @@ function App(): React.JSX.Element {
   } = usePushNotification();
 
   useEffect(() => {
+    isEnabledGeo();
     const listenToNotifications = () => {
       try {
         getFCMToken();
@@ -86,7 +99,13 @@ function App(): React.JSX.Element {
     };
 
     listenToNotifications();
+
+    setContactKey(NativeModules.SalesforceModule.getContactKey());
   }, []);
+
+  const [contactKey, setContactKey] = useState('');
+  const [channels, setChannels] = useState([]);
+  const [enableGeofence, setEnableGeo] = useState(false);
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -98,21 +117,20 @@ function App(): React.JSX.Element {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         <Header />
-        <TouchableOpacity
-          onPress={enableGeo}
+        <TextInput
+          value={contactKey}
+          onChange={evt => setContactKey(evt.nativeEvent.text)}
+          placeholder="Escribrir contact key"
+          placeholderTextColor={'#000'}
           style={{
-            backgroundColor: '#dedede',
-            paddingHorizontal: 6,
-            paddingVertical: 2,
-            marginHorizontal: 10,
-            borderRadius: 10,
             height: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{color: 'black'}}>Habilitar geolocalización</Text>
-        </TouchableOpacity>
-
+            width: '95%',
+            borderRadius: 10,
+            marginHorizontal: 10,
+            backgroundColor: '#fffefe',
+            color: '#000',
+          }}
+        />
         <TouchableOpacity
           onPress={setProfileId}
           style={{
@@ -130,6 +148,22 @@ function App(): React.JSX.Element {
         </TouchableOpacity>
 
         <TouchableOpacity
+          onPress={enableGeo}
+          style={{
+            backgroundColor: '#dedede',
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+            marginHorizontal: 10,
+            borderRadius: 10,
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          <Text style={{color: 'black'}}>Habilitar geolocalización</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           onPress={obtenerFirestore}
           style={{
             backgroundColor: '#dedede',
@@ -144,7 +178,22 @@ function App(): React.JSX.Element {
           }}>
           <Text style={{color: 'black'}}>Obtener canales push</Text>
         </TouchableOpacity>
-
+        {channels.length > 0 && (
+          <View
+            style={{
+              marginHorizontal: 10,
+              marginTop: 15,
+              backgroundColor: '#65c4fb',
+              paddingHorizontal: 8,
+              paddingVertical: 5,
+            }}>
+            {channels.map(channel => (
+              <Text key={channel} style={{color: '#000'}}>
+                {channel}
+              </Text>
+            ))}
+          </View>
+        )}
         <TouchableOpacity
           onPress={isEnabledGeo}
           style={{
@@ -159,6 +208,31 @@ function App(): React.JSX.Element {
             marginTop: 20,
           }}>
           <Text style={{color: 'black'}}>¿Está activado la geo?</Text>
+        </TouchableOpacity>
+        <View
+          style={{
+            marginHorizontal: 10,
+            marginTop: 15,
+            backgroundColor: '#65c4fb',
+            paddingHorizontal: 8,
+            paddingVertical: 5,
+          }}>
+          <Text style={{color: 'black'}}>{enableGeofence ? 'Sí' : 'No'}</Text>
+        </View>
+        <TouchableOpacity
+          onPress={obtenerSDK}
+          style={{
+            backgroundColor: '#dedede',
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+            marginHorizontal: 10,
+            borderRadius: 10,
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          <Text style={{color: 'black'}}>Obtener Estado SDK</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
