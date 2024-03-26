@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
@@ -13,33 +14,7 @@ import {
   TextInput,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-import firestore from '@react-native-firebase/firestore';
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-import {PermissionsAndroid} from 'react-native';
-import usePushNotification from './usePushNotification';
-import PushNotification, {Importance} from 'react-native-push-notification';
-PushNotification.createChannel(
-  {
-    channelId: 'default-1', // (required)
-    channelName: 'Canal por defetco', // (required)
-    channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-    playSound: false, // (optional) default: true
-    soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-    importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-    vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-  },
-  created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-);
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -52,10 +27,6 @@ function App(): React.JSX.Element {
   };
 
   const setProfileId = () => {
-    PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-    );
-
     NativeModules.SalesforceModule.setProfileId('74321574');
   };
 
@@ -64,46 +35,19 @@ function App(): React.JSX.Element {
   };
 
   const obtenerFirestore = () => {
-    PushNotification.getChannels(function (channel_ids) {
-      console.log('channel_ids', channel_ids);
-      setChannels(channel_ids);
-    });
+
   };
 
   const obtenerSDK = () => {
     console.log(NativeModules.SalesforceModule.getSDKState());
   };
 
-  const {
-    requestUserPermission,
-    getFCMToken,
-    listenToBackgroundNotifications,
-    listenToForegroundNotifications,
-    onNotificationOpenedAppFromBackground,
-    onNotificationOpenedAppFromQuit,
-  } = usePushNotification();
-
   useEffect(() => {
-    isEnabledGeo();
-    const listenToNotifications = () => {
-      try {
-        getFCMToken();
-        requestUserPermission();
-        onNotificationOpenedAppFromQuit();
-        listenToBackgroundNotifications();
-        listenToForegroundNotifications();
-        onNotificationOpenedAppFromBackground();
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    listenToNotifications();
-
+    setProfileId();
     setContactKey(NativeModules.SalesforceModule.getContactKey());
   }, []);
 
-  const [contactKey, setContactKey] = useState('');
+  const [contactKey, setContactKey] = useState('74321574');
   const [channels, setChannels] = useState([]);
   const [enableGeofence, setEnableGeo] = useState(false);
 
@@ -239,23 +183,5 @@ function App(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
